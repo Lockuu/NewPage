@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎂 Birthday Fortune</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&display=swap');
+    
+    :root {
+      --pink: #ff6b9d;
+      --dark-pink: #e84393;
+      --light-pink: #ffb8d9;
+      --blue: #74b9ff;
+      --light-blue: #a7d8ff;
+      --yellow: #fdcb6e;
+      --white: #fff9fb;
+      --green: #55efc4;
+      --dark-green: #00b894;
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'DotGothic16', sans-serif;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--light-pink), var(--pink), var(--blue), var(--light-blue));
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      touch-action: manipulation;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    /* Welcome Screen */
+    #welcome-container {
+      text-align: center;
+      animation: fadeIn 1.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #title {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 2rem;
+      color: var(--white);
+      margin: 20px 0 30px;
+      text-shadow: 3px 3px 0 var(--dark-pink), 5px 5px 0 rgba(0,0,0,0.2);
+    }
+
+    #subtitle {
+      font-size: 1.1rem;
+      color: var(--white);
+      opacity: 0.9;
+      margin-bottom: 40px;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+    }
+
+    /* Button Styles */
+    .fortune-button {
+      position: relative;
+      padding: 20px 40px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1.2em;
+      color: white;
+      background: var(--dark-pink);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      overflow: hidden;
+      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 10px;
+    }
+
+    .gift-button {
+      background: var(--dark-green);
+    }
+
+    .fortune-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, var(--pink), var(--blue), var(--yellow));
+      background-size: 200% 200%;
+      z-index: -1;
+      border-radius: 50px;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .gift-button::before {
+      background: linear-gradient(45deg, var(--green), var(--blue), var(--yellow));
+    }
+
+    .fortune-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+    }
+
+    .fortune-button:hover::before {
+      opacity: 1;
+      animation: gradientBG 3s ease infinite;
+    }
+
+    .fortune-button:active {
+      transform: translateY(0);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .fortune-button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255,255,255,0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    .fortune-button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+
+    /* Quote Screen */
+    .window {
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 6px solid var(--dark-pink);
+      border-radius: 10px;
+      padding: 25px;
+      width: 90vw;
+      max-width: 700px;
+      height: 80vh;
+      max-height: 600px;
+      overflow-y: auto;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .gift-window {
+      border-color: var(--dark-green);
+    }
+
+    #quote-box {
+      font-size: 1.3em;
+      line-height: 1.6;
+      margin: 25px auto;
+      background: rgba(255, 241, 230, 0.9);
+      padding: 25px;
+      border-radius: 8px;
+      border: 4px solid var(--pink);
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.1);
+      position: relative;
+      transition: all 0.5s ease;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .gift-box {
+      width: 100%;
+      text-align: left;
+      border-color: var(--green);
+      background: rgba(230, 255, 241, 0.9);
+    }
+
+    .gift-section {
+      margin-bottom: 20px;
+    }
+
+    .gift-section h3 {
+      color: var(--dark-green);
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1em;
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--green);
+      padding-bottom: 5px;
+      text-align: center;
+    }
+
+    .gift-section ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .gift-section li {
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .gift-section li:before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--dark-green);
+    }
+
+    .gift-section a {
+      color: var(--dark-pink);
+      text-decoration: none;
+      transition: all 0.2s;
+      word-break: break-all;
+    }
+
+    .gift-section a:hover {
+      color: var(--dark-green);
+      text-decoration: underline;
+    }
+
+    #character-image {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 15px;
+      border: 3px solid var(--dark-pink);
+      border-radius: 50%;
+      background: white;
+      object-fit: cover;
+    }
+
+    #quote-text {
+      margin-bottom: 15px;
+    }
+
+    #character-attribution {
+      font-style: italic;
+      margin-top: 15px;
+      align-self: flex-end;
+    }
+
+    .character-name {
+      font-weight: bold;
+      color: var(--dark-pink);
+      position: relative;
+      display: inline-block;
+    }
+
+    .character-name::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--dark-pink);
+    }
+
+    .buttons-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    button {
+      margin: 12px;
+      padding: 12px 25px;
+      font-size: 1em;
+      font-family: 'Press Start 2P', cursive;
+      background: var(--dark-pink);
+      color: white;
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
+    }
+
+    button:active {
+      transform: translate(1px, 1px);
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    }
+
+    #back-btn {
+      background: var(--blue);
+    }
+
+    /* 8-bit decorations */
+    .pixel-corner {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: var(--yellow);
+    }
+
+    .green-corner {
+      background: var(--green);
+    }
+
+    .top-left {
+      top: -8px;
+      left: -8px;
+    }
+
+    .top-right {
+      top: -8px;
+      right: -8px;
+    }
+
+    .bottom-left {
+      bottom: -8px;
+      left: -8px;
+    }
+
+    .bottom-right {
+      bottom: -8px;
+      right: -8px;
+    }
+
+    /* Loading animation */
+    .loader {
+      width: 80px;
+      height: 80px;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid var(--dark-pink);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      #title {
+        font-size: 1.5rem;
+      }
+      
+      #subtitle {
+        font-size: 0.9rem;
+      }
+      
+      .window {
+        padding: 15px;
+        width: 85vw;
+      }
+      
+      #quote-box {
+        font-size: 1.1em;
+        padding: 15px;
+      }
+      
+      button {
+        padding: 10px 15px;
+        font-size: 0.8em;
+      }
+      
+      .fortune-button {
+        padding: 15px 30px;
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page 1: Welcome Screen -->
+  <div id="page1" class="screen active">
+    <div id="welcome-container">
+      <h1 id="title">BIRTHDAY FORTUNE</h1>
+      <p id="subtitle">Get your special birthday message from anime characters</p>
+      <div class="buttons-container">
+        <button class="fortune-button" id="fortune-btn">GET YOUR FORTUNE</button>
+        <button class="fortune-button gift-button" id="gift-btn">GET A GIFT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 2: Quotes -->
+  <div id="page2" class="screen">
+    <div class="window">
+      <div class="pixel-corner top-left"></div>
+      <div class="pixel-corner top-right"></div>
+      <div class="pixel-corner bottom-left"></div>
+      <div class="pixel-corner bottom-right"></div>
+      
+      <div id="image-container">
+        <div class="loader" id="loader"></div>
+        <img id="character-image" src="" alt="Character" style="display: none;">
+      </div>
+      <div id="quote-box">
+        <div id="quote-text">Your birthday fortune awaits...</div>
+        <div id="character-attribution" class="character-name"></div>
+      </div>
+      <div class="buttons-container">
+        <button onclick="newQuote()">ANOTHER FORTUNE</button>
+        <button id="back-btn" onclick="goBack()">BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 3: Gift -->
+  <div id="page3" class="screen">
+    <div class="window gift-window">
+      <div class="pixel-corner top-left green-corner"></div>
+      <div class="pixel-corner top-right green-corner"></div>
+      <div class="pixel-corner bottom-left green-corner"></div>
+      <div class="pixel-corner bottom-right green-corner"></div>
+      
+      <div id="gift-container">
+        <div id="gift-box" class="gift-box">
+          <div class="gift-section">
+            <h3>ANIME SITES</h3>
+            <ul>
+              <li><a href="https://www.miruro.tv/" target="_blank">Miruro</a> - Large anime collection</li>
+              <li><a href="https://www.enma.lol/" target="_blank">Emma</a> - Ad-free anime experience</li>
+              <li><a href="https://animag.to/" target="_blank">AniMag</a> - Aggregates multiple sources</li>
+              <li><a href="https://kaido.to/home" target="_blank">Kaido</a> - Multi Sources</li>
+              <li><a href="https://anicrush.to/home" target="_blank">AniCrush</a> - Multi Sources</li>
+              <li><a href="https://animekai.to/home" target="_blank">AnimeKai</a> - Multi Sources</li>
+            </ul>
+          </div>
+          
+          <div class="gift-section">
+            <h3>MANGA SITES</h3>
+            <ul>
+              <li><a href="https://mangadex.org" target="_blank">MangaDex</a> - Community-driven manga site</li>
+              <li><a href="https://mangafire.to/home" target="_blank">MangaFire</a> - Free manga reader</li>
+              <li><a href="https://mangareader.to/home" target="_blank">MangaReader</a> - Popular manga aggregator</li>
+              <li><a href="https://mangago.me/" target="_blank">MangaGo</a> - Manga Bash</li>
+              <li><a href="https://mangahub.io/" target="_blank">MangaHub</a> - Manga Bash</li>
+              <li><a href="https://mangakatana.com/" target="_blank">MangaKatana</a> - Manga Bash</li>
+            </ul>
+          </div>
+          
+          <div class="gift-section">
+            <h3>NOVEL SITES</h3>
+            <ul>
+              <li><a href="https://www.novelupdates.com" target="_blank">NovelUpdates</a> - Light novel tracking</li>
+              <li><a href="https://www.wuxiaworld.com" target="_blank">WuxiaWorld</a> - Chinese web novels</li>
+              <li><a href="https://royalroad.com" target="_blank">Royal Road</a> - Western web novels</li>
+              <li><a href="https://www.justlightnovels.com" target="_blank">Just Light Novels</a> - Light novel translations</li>
+              <li><a href="https://www.scribblehub.com" target="_blank">Scribble Hub</a> - Original web novels</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="buttons-container">
+        <button id="back-btn" onclick="goBack()">BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quotes = [
+      { 
+        name: "Saber", 
+        quote: "Happy birthday! Let's celebrate with a Dual! I hope your power level this year is over 9000!", 
+        image: "https://th.bing.com/th/id/OIP.LwMGud3P5j5Xfwkle80mtgHaEo?rs=1&pid=ImgDetMain" // 300KB
+      },
+      { 
+        name: "Naruto", 
+        quote: "Happy birthday, dattebayo! Believe it! This year will be your best one yet!", 
+        image: "https://wallpapercave.com/wp/wp7649028.png" // 250KB
+      },
+      { 
+        name: "Ace", 
+        quote: "Live your life without regrets. Celebrate your birthday like a flame—bright, warm, and unafraid to burn for what matters!", 
+        image: "https://th.bing.com/th/id/OIP.QVJRTWeQ3z5LKepCgvkFkgHaE8?rs=1&pid=ImgDetMain" // 350KB
+      },
+      { 
+        name: "Pikachu", 
+        quote: "Pika pika chu! (Happy birthday! May your year be full of sparks and surprises!)", 
+        image: "https://wallpapers.com/images/hd/cute-baby-pikachu-ate67vaz2ep5pcnb.jpg" // 200KB
+      },
+      { 
+        name: "Sailor Moon", 
+        quote: "In the name of the moon, I wish you a magical birthday filled with love and justice!", 
+        image: "https://th.bing.com/th/id/OIP.TOCnOIItXvXpcBjeMQiqagHaEK?rs=1&pid=ImgDetMain" // 280KB
+      },
+      { 
+        name: "Saitama", 
+        quote: "Happy birthday... OK. Have a seriously awesome year! One punch to all your problems!", 
+        image: "https://th.bing.com/th/id/OIP.aDWwQGLzxM0xCzY1PWz25wHaDy?rs=1&pid=ImgDetMain" // 320KB
+      }
+    ];
+
+    // Preload all images when page loads
+    function preloadImages() {
+      quotes.forEach(character => {
+        const img = new Image();
+        img.src = character.image;
+      });
+    }
+
+    function newQuote() {
+      const random = quotes[Math.floor(Math.random() * quotes.length)];
+      const quoteText = document.getElementById('quote-text');
+      const characterAttr = document.getElementById('character-attribution');
+      const characterImg = document.getElementById('character-image');
+      const loader = document.getElementById('loader');
+      
+      // Show loading animation
+      characterImg.style.display = 'none';
+      loader.style.display = 'block';
+      
+      // Fade out animation
+      quoteText.style.opacity = 0;
+      characterAttr.style.opacity = 0;
+      
+      setTimeout(() => {
+        quoteText.textContent = random.quote;
+        characterAttr.textContent = `— ${random.name}`;
+        
+        // Check if image is already loaded
+        if (characterImg.src === random.image) {
+          loader.style.display = 'none';
+          characterImg.style.display = 'block';
+          characterImg.style.opacity = 1;
+        } else {
+          characterImg.onload = function() {
+            loader.style.display = 'none';
+            characterImg.style.display = 'block';
+            characterImg.style.opacity = 1;
+          };
+          characterImg.src = random.image;
+        }
+        
+        // Fade in animation
+        quoteText.style.opacity = 1;
+        characterAttr.style.opacity = 1;
+      }, 300);
+    }
+
+    // Button click: go to page2
+    const fortuneBtn = document.getElementById('fortune-btn');
+    fortuneBtn.addEventListener('click', () => {
+      // Ripple effect
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      fortuneBtn.appendChild(ripple);
+      
+      setTimeout(() => {
+        ripple.remove();
+        document.getElementById('page1').classList.remove('active');
+        document.getElementById('page2').classList.add('active');
+        newQuote(); // Load first quote
+      }, 500);
+    });
+
+    // Button click: go to page3 (Gift)
+    const giftBtn = document.getElementById('gift-btn');
+    giftBtn.addEventListener('click', () => {
+      // Ripple effect
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      giftBtn.appendChild(ripple);
+      
+      setTimeout(() => {
+        ripple.remove();
+        document.getElementById('page1').classList.remove('active');
+        document.getElementById('page3').classList.add('active');
+      }, 500);
+    });
+
+    function goBack() {
+      // Hide all pages except page1
+      document.querySelectorAll('.screen').forEach(page => {
+        page.classList.remove('active');
+      });
+      document.getElementById('page1').classList.add('active');
+    }
+
+    // Initialize when page loads
+    window.onload = function() {
+      preloadImages();
+      
+      if (document.getElementById('page2').classList.contains('active')) {
+        newQuote();
+      }
+    };
+  </script>
+</body>
+</html>
